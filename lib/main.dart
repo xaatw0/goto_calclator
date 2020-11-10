@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 
 void main() {
+  // ステータスバーとナビゲーションバーを非表示にする場合
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIOverlays([]);
+
   runApp(MyApp());
 }
+
+const Color MAIN_COLOR = Color.fromRGBO(0x2a, 0x47, 0x43, 1);
+const Color ACCCENT_COLOR = Color.fromRGBO(0xb1, 0x99, 0x62, 1);
+const Color SUB_COLOR = Color.fromRGBO(0x7c, 0x2e, 0x1e, 1);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -14,7 +23,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: MAIN_COLOR,
+        backgroundColor: MAIN_COLOR,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
@@ -62,30 +72,34 @@ class _MyHomePageState extends State<MyHomePage> {
                   flex: 1,
                   child: Text(
                     "人数",
+                    textAlign: TextAlign.right,
                     style: Theme.of(context).textTheme.headline5,
                   ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: DropdownButton(
-                    value: _person,
-                    style: Theme.of(context).textTheme.headline5,
-                    items: <DropdownMenuItem<int>>[
-                      DropdownMenuItem<int>(child: Text("1名"), value: 1),
-                      DropdownMenuItem<int>(child: Text("2名"), value: 2),
-                      DropdownMenuItem<int>(child: Text("3名"), value: 3),
-                      DropdownMenuItem<int>(child: Text("4名"), value: 4),
-                      DropdownMenuItem<int>(child: Text("5名"), value: 5),
-                      DropdownMenuItem<int>(child: Text("6名"), value: 6),
-                      DropdownMenuItem<int>(child: Text("7名"), value: 7),
-                      DropdownMenuItem<int>(child: Text("8名"), value: 8),
-                      DropdownMenuItem<int>(child: Text("9名"), value: 9),
-                      DropdownMenuItem<int>(child: Text("10名"), value: 10),
-                    ],
-                    onChanged: (value) => setState(() {
-                      _person = value;
-                      _calc();
-                    }),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: DropdownButton(
+                      value: _person,
+                      style: Theme.of(context).textTheme.headline5,
+                      items: <DropdownMenuItem<int>>[
+                        DropdownMenuItem<int>(child: Text("1名"), value: 1),
+                        DropdownMenuItem<int>(child: Text("2名"), value: 2),
+                        DropdownMenuItem<int>(child: Text("3名"), value: 3),
+                        DropdownMenuItem<int>(child: Text("4名"), value: 4),
+                        DropdownMenuItem<int>(child: Text("5名"), value: 5),
+                        DropdownMenuItem<int>(child: Text("6名"), value: 6),
+                        DropdownMenuItem<int>(child: Text("7名"), value: 7),
+                        DropdownMenuItem<int>(child: Text("8名"), value: 8),
+                        DropdownMenuItem<int>(child: Text("9名"), value: 9),
+                        DropdownMenuItem<int>(child: Text("10名"), value: 10),
+                      ],
+                      onChanged: (value) => setState(() {
+                        _person = value;
+                        _calc();
+                      }),
+                    ),
                   ),
                 )
               ],
@@ -98,36 +112,40 @@ class _MyHomePageState extends State<MyHomePage> {
                   flex: 1,
                   child: Text(
                     "宿泊日数",
+                    textAlign: TextAlign.right,
                     style: Theme.of(context).textTheme.headline5,
                   ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: DropdownButton(
-                    value: _stay,
-                    style: Theme.of(context).textTheme.headline5,
-                    items: <DropdownMenuItem<int>>[
-                      DropdownMenuItem<int>(child: Text("日帰り"), value: 0),
-                      DropdownMenuItem<int>(child: Text("1泊2日"), value: 1),
-                      DropdownMenuItem<int>(child: Text("2泊3日"), value: 2),
-                      DropdownMenuItem<int>(child: Text("3泊4日"), value: 3),
-                      DropdownMenuItem<int>(child: Text("4泊5日"), value: 4),
-                      DropdownMenuItem<int>(child: Text("5泊6日"), value: 5),
-                      DropdownMenuItem<int>(child: Text("6泊7日"), value: 6),
-                      DropdownMenuItem<int>(child: Text("7泊8日"), value: 7),
-                      DropdownMenuItem<int>(child: Text("8泊以上"), value: 10),
-                    ],
-                    onChanged: (value) => setState(() {
-                      _stay = value;
-                      _calc();
-                    }),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: DropdownButton(
+                      value: _stay,
+                      style: Theme.of(context).textTheme.headline5,
+                      items: <DropdownMenuItem<int>>[
+                        DropdownMenuItem<int>(child: Text("日帰り"), value: 0),
+                        DropdownMenuItem<int>(child: Text("1泊2日"), value: 1),
+                        DropdownMenuItem<int>(child: Text("2泊3日"), value: 2),
+                        DropdownMenuItem<int>(child: Text("3泊4日"), value: 3),
+                        DropdownMenuItem<int>(child: Text("4泊5日"), value: 4),
+                        DropdownMenuItem<int>(child: Text("5泊6日"), value: 5),
+                        DropdownMenuItem<int>(child: Text("6泊7日"), value: 6),
+                        DropdownMenuItem<int>(child: Text("7泊8日"), value: 7),
+                        DropdownMenuItem<int>(child: Text("8泊以上"), value: 10),
+                      ],
+                      onChanged: (value) => setState(() {
+                        _stay = value;
+                        _calc();
+                      }),
+                    ),
                   ),
                 )
               ],
             ),
             NumericKeyboard(
               onKeyboardTap: _onKeyboardTap,
-              textColor: Colors.red,
+              textColor: SUB_COLOR,
               rightButtonFn: () {
                 setState(() {
                   if (_price.length == 0) {
@@ -145,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               rightIcon: Icon(
                 Icons.backspace,
-                color: Colors.red,
+                color: ACCCENT_COLOR,
               ),
             ),
             Row(
@@ -252,12 +270,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _onKeyboardTap(String value) {
     setState(() {
+      if (_price.length == 7) {
+        return;
+      }
+
       _price = _price + value;
       _calc();
     });
   }
 
   _calc() {
+    if (_price.length == 0) {
+      return;
+    }
+
     int price = int.parse(_price);
 
     int max = (_stay == 10
