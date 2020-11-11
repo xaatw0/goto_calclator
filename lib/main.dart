@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 import 'package:numeric_keyboard/numeric_keyboard.dart';
@@ -44,6 +45,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   static const String NOT_TARGET = "8泊以上はGOTO対象外";
+  final formatter = NumberFormat("#,###");
 
   String _price = '';
   int _person = 1;
@@ -171,7 +173,6 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               children: [
                 Expanded(
-                  flex: 1,
                   child: Text(
                     "旅行代金",
                     textAlign: TextAlign.right,
@@ -179,11 +180,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Expanded(
-                  flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      '${_price == 0 ? "" : _price}',
+                      '${_price.length == 0 ? "" : formatter.format(int.parse(_price))}',
+                      textAlign: TextAlign.right,
                       style: Theme.of(context).textTheme.headline5,
                     ),
                   ),
@@ -195,7 +196,6 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               children: [
                 Expanded(
-                  flex: 1,
                   child: Text(
                     "割引額",
                     textAlign: TextAlign.right,
@@ -203,11 +203,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Expanded(
-                  flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      '${_stay == 10 ? NOT_TARGET : _minus == 0 ? "" : _minus}',
+                      '${_stay == 10 ? NOT_TARGET : _minus == 0 ? "" : formatter.format(_minus)}',
+                      textAlign: TextAlign.right,
                       style: Theme.of(context).textTheme.headline5,
                     ),
                   ),
@@ -219,7 +219,6 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               children: [
                 Expanded(
-                  flex: 1,
                   child: Text(
                     "支払額",
                     textAlign: TextAlign.right,
@@ -227,12 +226,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Expanded(
-                  flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      '${_pay == 0 ? "" : _pay}',
-                      style: Theme.of(context).textTheme.headline4,
+                      '${_pay == 0 ? "" : formatter.format(_pay)}',
+                      textAlign: TextAlign.right,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline4
+                          .copyWith(color: ACCCENT_COLOR),
                     ),
                   ),
                 )
@@ -243,7 +245,6 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               children: [
                 Expanded(
-                  flex: 1,
                   child: Text(
                     "クーポン",
                     textAlign: TextAlign.right,
@@ -251,11 +252,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Expanded(
-                  flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      '${_stay == 10 ? NOT_TARGET : _coupon == 0 ? "" : _coupon}',
+                      '${_stay == 10 ? NOT_TARGET : _coupon == 0 ? "" : formatter.format(_coupon)}',
+                      textAlign: TextAlign.right,
                       style: Theme.of(context).textTheme.headline5,
                     ),
                   ),
