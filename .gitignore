@@ -43,3 +43,4 @@ app.*.map.json
 /android/app/keystore/daigo_quiz.jks
 /android/app/keystore/daigo_quiz_key.cer
 /pubspec.lock
+ios/Podfile.lock
