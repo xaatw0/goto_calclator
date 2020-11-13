@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
-import 'package:vibration/vibration.dart';
 
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 
@@ -307,10 +306,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _onKeyboardTap(String value) async {
-    if (await Vibration.hasVibrator()) {
-      Vibration.vibrate();
-    }
-
     if (_price.length == 7) {
       return;
     }
@@ -343,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _pay = price - _minus;
 
     if (_tomin) {
-      if ((_stay == 0 && 4500 <= price) || 9000 <= price) {
+      if ((_stay == 0 && 4500 * _person <= price) || 9000 * _person <= price) {
         int value =
             5000 * _person * _stay < _pay ? 5000 * _person * _stay : _pay;
         if (_stay == 0) {
