@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'dart:math' as math;
+import 'dart:io';
 
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 
@@ -47,12 +47,26 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const String NOT_TARGET = "8泊以上はGOTO対象外";
   final formatter = NumberFormat("#,###");
+  final _isIOS = Platform.isIOS;
+
+  final _lstPerson = List<Text>.generate(
+    10,
+    (i) => Text("${i + 1}名"),
+  );
+
+  final _lstStay = <Text>[
+    Text("日帰り"),
+    ...List.generate(
+      7,
+      (index) => Text("${index + 1}泊${index + 2}日"),
+    ),
+    Text("8泊以上")
+  ];
 
   String _price = '';
   int _person = 1;
   int _stay = 0;
 
-  int _support = 0;
   int _minus = 0;
   int _coupon = 0;
   int _pay = 0;
@@ -117,26 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     flex: 2,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: DropdownButton(
-                        value: _person,
-                        style: Theme.of(context).textTheme.headline5,
-                        items: <DropdownMenuItem<int>>[
-                          DropdownMenuItem<int>(child: Text("1名"), value: 1),
-                          DropdownMenuItem<int>(child: Text("2名"), value: 2),
-                          DropdownMenuItem<int>(child: Text("3名"), value: 3),
-                          DropdownMenuItem<int>(child: Text("4名"), value: 4),
-                          DropdownMenuItem<int>(child: Text("5名"), value: 5),
-                          DropdownMenuItem<int>(child: Text("6名"), value: 6),
-                          DropdownMenuItem<int>(child: Text("7名"), value: 7),
-                          DropdownMenuItem<int>(child: Text("8名"), value: 8),
-                          DropdownMenuItem<int>(child: Text("9名"), value: 9),
-                          DropdownMenuItem<int>(child: Text("10名"), value: 10),
-                        ],
-                        onChanged: (value) => setState(() {
-                          _person = value;
-                          _calc();
-                        }),
-                      ),
+                      child: _isIOS ? _createPersonIos() : _createPerson(),
                     ),
                   )
                 ],
@@ -157,25 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     flex: 2,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: DropdownButton(
-                        value: _stay,
-                        style: Theme.of(context).textTheme.headline5,
-                        items: <DropdownMenuItem<int>>[
-                          DropdownMenuItem<int>(child: Text("日帰り"), value: 0),
-                          DropdownMenuItem<int>(child: Text("1泊2日"), value: 1),
-                          DropdownMenuItem<int>(child: Text("2泊3日"), value: 2),
-                          DropdownMenuItem<int>(child: Text("3泊4日"), value: 3),
-                          DropdownMenuItem<int>(child: Text("4泊5日"), value: 4),
-                          DropdownMenuItem<int>(child: Text("5泊6日"), value: 5),
-                          DropdownMenuItem<int>(child: Text("6泊7日"), value: 6),
-                          DropdownMenuItem<int>(child: Text("7泊8日"), value: 7),
-                          DropdownMenuItem<int>(child: Text("8泊以上"), value: 10),
-                        ],
-                        onChanged: (value) => setState(() {
-                          _stay = value;
-                          _calc();
-                        }),
-                      ),
+                      child: _isIOS ? _createStayIos() : _createStay(),
                     ),
                   )
                 ],
@@ -316,7 +293,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _calc() {
+  void _calc() {
     if (_price.length == 0) {
       return;
     }
@@ -337,6 +314,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _coupon = ((isExpensive ? max * 0.3 : price * 0.15) / 1000).round() * 1000;
     _pay = price - _minus;
 
+    if (_stay == 10) {
+      _pay = price;
+    }
+
     if (_tomin) {
       if ((_stay == 0 && 4500 * _person <= price) || 9000 * _person <= price) {
         int value =
@@ -348,5 +329,115 @@ class _MyHomePageState extends State<MyHomePage> {
         _minus += value;
       }
     }
+  }
+
+  Widget _createPerson() {
+    return DropdownButton(
+      value: _person,
+      style: Theme.of(context).textTheme.headline5,
+      items: List.generate(10,
+          (i) => DropdownMenuItem<int>(child: Text("${i + 1}名"), value: i + 1)),
+      onChanged: (value) => setState(() {
+        _person = value;
+        _calc();
+      }),
+    );
+  }
+
+  Widget _createPersonIos() {
+    return CupertinoButton(
+      child: _lstPerson[_person - 1],
+      onPressed: () {
+        showCupertinoModalPopup<String>(
+          context: context,
+          builder: (context) {
+            return _buildBottomPicker(
+              CupertinoPicker(
+                itemExtent: 32.0,
+                onSelectedItemChanged: (value) {
+                  setState(() {
+                    _person = value + 1;
+                    _calc();
+                  });
+                },
+                children: _lstPerson,
+                scrollController: FixedExtentScrollController(
+                  initialItem: _person - 1,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _createStay() {
+    return DropdownButton(
+      value: _stay,
+      style: Theme.of(context).textTheme.headline5,
+      items: <DropdownMenuItem<int>>[
+        DropdownMenuItem<int>(child: Text("日帰り"), value: 0),
+        ...List.generate(
+          7,
+          (index) => DropdownMenuItem<int>(
+              child: Text("${index + 1}泊${index + 2}日"), value: index + 1),
+        ),
+        DropdownMenuItem<int>(child: Text("8泊以上"), value: 10),
+      ],
+      onChanged: (value) => setState(() {
+        _stay = value;
+        _calc();
+      }),
+    );
+  }
+
+  Widget _createStayIos() {
+    return CupertinoButton(
+      child: _lstStay[_stay == 10 ? _lstStay.length - 1 : _stay],
+      onPressed: () {
+        showCupertinoModalPopup<String>(
+          context: context,
+          builder: (context) {
+            return _buildBottomPicker(
+              CupertinoPicker(
+                itemExtent: 32.0,
+                onSelectedItemChanged: (value) {
+                  setState(() {
+                    _stay = value == _lstStay.length - 1 ? 10 : value;
+                    _calc();
+                  });
+                },
+                children: _lstStay,
+                scrollController: FixedExtentScrollController(
+                  initialItem: _stay,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomPicker(Widget picker) {
+    return Container(
+      height: 216,
+      padding: const EdgeInsets.only(top: 6.0),
+      color: CupertinoColors.white,
+      child: DefaultTextStyle(
+        style: const TextStyle(
+          color: CupertinoColors.white,
+          fontSize: 22.0,
+        ),
+        child: GestureDetector(
+          onTap: () {},
+          child: SafeArea(
+            top: false,
+            child: picker,
+          ),
+        ),
+      ),
+    );
   }
 }
