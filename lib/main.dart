@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Expanded(
                     flex: 1,
                     child: Text(
-                      "東京都民割",
+                      "都民割",
                       textAlign: TextAlign.right,
                       style: Theme.of(context).textTheme.headline5,
                     ),
