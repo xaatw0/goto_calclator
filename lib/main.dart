@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
 
   String _price = '';
 
-  int _person = 1;
+  final RestorableInt _person = RestorableInt(1);
   final RestorableInt _stay = RestorableInt(0);
 
   int _minus = 0;
@@ -311,7 +311,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
             : _stay.value == 0
                 ? 10000
                 : 20000 * _stay.value) *
-        _person;
+        _person.value;
 
     int half = (price / 2).toInt();
 
@@ -325,13 +325,13 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
     }
 
     if (_tomin) {
-      if ((_stay.value == 0 && 4500 * _person <= price) ||
-          9000 * _person <= price) {
-        int value = 5000 * _person * _stay.value < _pay
-            ? 5000 * _person * _stay.value
+      if ((_stay.value == 0 && 4500 * _person.value <= price) ||
+          9000 * _person.value <= price) {
+        int value = 5000 * _person.value * _stay.value < _pay
+            ? 5000 * _person.value * _stay.value
             : _pay;
         if (_stay.value == 0) {
-          value = 2500 * _person < _pay ? 2500 * _person : _pay;
+          value = 2500 * _person.value < _pay ? 2500 * _person.value : _pay;
         }
         _pay -= value;
         _minus += value;
@@ -341,12 +341,12 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
 
   Widget _createPerson() {
     return DropdownButton(
-      value: _person,
+      value: _person.value,
       style: Theme.of(context).textTheme.headline5,
       items: List.generate(10,
           (i) => DropdownMenuItem<int>(child: Text("${i + 1}名"), value: i + 1)),
       onChanged: (value) => setState(() {
-        _person = value;
+        _person.value = value;
         _calc();
       }),
     );
@@ -354,7 +354,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
 
   Widget _createPersonIos() {
     return CupertinoButton(
-      child: _lstPerson[_person - 1],
+      child: _lstPerson[_person.value - 1],
       onPressed: () {
         showCupertinoModalPopup<String>(
           context: context,
@@ -364,13 +364,13 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
                 itemExtent: 32.0,
                 onSelectedItemChanged: (value) {
                   setState(() {
-                    _person = value + 1;
+                    _person.value = value + 1;
                     _calc();
                   });
                 },
                 children: _lstPerson,
                 scrollController: FixedExtentScrollController(
-                  initialItem: _person - 1,
+                  initialItem: _person.value - 1,
                 ),
               ),
             );
@@ -456,5 +456,6 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
   @override
   void restoreState(RestorationBucket oldBucket, bool initialRestore) {
     registerForRestoration(_stay, 'stay');
+    registerForRestoration(_person, 'person');
   }
 }
