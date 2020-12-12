@@ -11,7 +11,12 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([]);
 
-  runApp(MyApp());
+  runApp(
+    RootRestorationScope(
+      restorationId: "root",
+      child: MyApp(),
+    ),
+  );
 }
 
 const Color MAIN_COLOR = Color.fromRGBO(0x2a, 0x47, 0x43, 1);
@@ -44,7 +49,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
   static const String NOT_TARGET = "8泊以上はGOTO対象外";
   final formatter = NumberFormat("#,###");
   final _isIOS = Platform.isIOS;
@@ -64,8 +69,9 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   String _price = '';
+
   int _person = 1;
-  int _stay = 0;
+  final RestorableInt _stay = RestorableInt(0);
 
   int _minus = 0;
   int _coupon = 0;
@@ -218,7 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        '${_stay == 10 ? NOT_TARGET : _minus == 0 ? "" : formatter.format(_minus)}',
+                        '${_stay.value == 10 ? NOT_TARGET : _minus == 0 ? "" : formatter.format(_minus)}',
                         textAlign: TextAlign.right,
                         style: Theme.of(context).textTheme.headline5,
                       ),
@@ -267,7 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        '${_stay == 10 ? NOT_TARGET : _coupon == 0 ? "" : formatter.format(_coupon)}',
+                        '${_stay.value == 10 ? NOT_TARGET : _coupon == 0 ? "" : formatter.format(_coupon)}',
                         textAlign: TextAlign.right,
                         style: Theme.of(context).textTheme.headline5,
                       ),
@@ -300,11 +306,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     int price = int.parse(_price);
 
-    int max = (_stay == 10
+    int max = (_stay.value == 10
             ? 0
-            : _stay == 0
+            : _stay.value == 0
                 ? 10000
-                : 20000 * _stay) *
+                : 20000 * _stay.value) *
         _person;
 
     int half = (price / 2).toInt();
@@ -314,15 +320,17 @@ class _MyHomePageState extends State<MyHomePage> {
     _coupon = ((isExpensive ? max * 0.3 : price * 0.15) / 1000).round() * 1000;
     _pay = price - _minus;
 
-    if (_stay == 10) {
+    if (_stay.value == 10) {
       _pay = price;
     }
 
     if (_tomin) {
-      if ((_stay == 0 && 4500 * _person <= price) || 9000 * _person <= price) {
-        int value =
-            5000 * _person * _stay < _pay ? 5000 * _person * _stay : _pay;
-        if (_stay == 0) {
+      if ((_stay.value == 0 && 4500 * _person <= price) ||
+          9000 * _person <= price) {
+        int value = 5000 * _person * _stay.value < _pay
+            ? 5000 * _person * _stay.value
+            : _pay;
+        if (_stay.value == 0) {
           value = 2500 * _person < _pay ? 2500 * _person : _pay;
         }
         _pay -= value;
@@ -374,7 +382,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _createStay() {
     return DropdownButton(
-      value: _stay,
+      value: _stay.value,
       style: Theme.of(context).textTheme.headline5,
       items: <DropdownMenuItem<int>>[
         DropdownMenuItem<int>(child: Text("日帰り"), value: 0),
@@ -386,7 +394,7 @@ class _MyHomePageState extends State<MyHomePage> {
         DropdownMenuItem<int>(child: Text("8泊以上"), value: 10),
       ],
       onChanged: (value) => setState(() {
-        _stay = value;
+        _stay.value = value;
         _calc();
       }),
     );
@@ -394,7 +402,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _createStayIos() {
     return CupertinoButton(
-      child: _lstStay[_stay == 10 ? _lstStay.length - 1 : _stay],
+      child: _lstStay[_stay.value == 10 ? _lstStay.length - 1 : _stay.value],
       onPressed: () {
         showCupertinoModalPopup<String>(
           context: context,
@@ -404,13 +412,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemExtent: 32.0,
                 onSelectedItemChanged: (value) {
                   setState(() {
-                    _stay = value == _lstStay.length - 1 ? 10 : value;
+                    _stay.value = value == _lstStay.length - 1 ? 10 : value;
                     _calc();
                   });
                 },
                 children: _lstStay,
                 scrollController: FixedExtentScrollController(
-                  initialItem: _stay,
+                  initialItem: _stay.value,
                 ),
               ),
             );
@@ -439,5 +447,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  @override
+  // TODO: implement restorationId
+  String get restorationId => "HomePage";
+
+  @override
+  void restoreState(RestorationBucket oldBucket, bool initialRestore) {
+    registerForRestoration(_stay, 'stay');
   }
 }
