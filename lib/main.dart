@@ -79,9 +79,16 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
 
   final RestorableBool _tomin = RestorableBool(false);
 
+  bool _isRestored = false;
+
   @override
   Widget build(BuildContext context) {
-    print("test2");
+    if (_isRestored) {
+      _isRestored = false;
+      setState(() {
+        _calc();
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -461,6 +468,8 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
     registerForRestoration(_stay, 'stay');
     registerForRestoration(_person, 'person');
     registerForRestoration(_tomin, 'tomin');
+
+    _isRestored = true;
   }
 
   @override
