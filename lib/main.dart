@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
   int _coupon = 0;
   int _pay = 0;
 
-  bool _tomin = false;
+  final RestorableBool _tomin = RestorableBool(false);
 
   @override
   Widget build(BuildContext context) {
@@ -109,11 +109,11 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: CupertinoSwitch(
-                        value: _tomin,
+                        value: _tomin.value,
                         onChanged: (bool value) {
                           setState(
                             () {
-                              _tomin = value;
+                              _tomin.value = value;
                               _calc();
                             },
                           );
@@ -327,7 +327,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
       _pay = price;
     }
 
-    if (_tomin) {
+    if (_tomin.value) {
       if ((_stay.value == 0 && 4500 * _person.value <= price) ||
           9000 * _person.value <= price) {
         int value = 5000 * _person.value * _stay.value < _pay
@@ -460,6 +460,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
     registerForRestoration(_price, 'price');
     registerForRestoration(_stay, 'stay');
     registerForRestoration(_person, 'person');
+    registerForRestoration(_tomin, 'tomin');
   }
 
   @override
@@ -467,6 +468,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
     _price.dispose();
     _stay.dispose();
     _person.dispose();
+    _tomin.dispose();
     super.dispose();
   }
 }
