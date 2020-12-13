@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
     Text("8泊以上")
   ];
 
-  String _price = '';
+  final RestorableString _price = RestorableString('');
 
   final RestorableInt _person = RestorableInt(1);
   final RestorableInt _stay = RestorableInt(0);
@@ -81,6 +81,8 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
 
   @override
   Widget build(BuildContext context) {
+    print("test2");
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -168,11 +170,12 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
                 textColor: SUB_COLOR,
                 rightButtonFn: () {
                   setState(() {
-                    if (_price.length == 0) {
+                    if (_price.value.length == 0) {
                       return;
                     }
-                    _price = _price.substring(0, _price.length - 1);
-                    if (0 < _price.length) {
+                    _price.value =
+                        _price.value.substring(0, _price.value.length - 1);
+                    if (0 < _price.value.length) {
                       _calc();
                     } else {
                       _coupon = 0;
@@ -201,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        '${_price.length == 0 ? "" : formatter.format(int.parse(_price))}',
+                        '${_price.value.length == 0 ? "" : formatter.format(int.parse(_price.value))}',
                         textAlign: TextAlign.right,
                         style: Theme.of(context).textTheme.headline5,
                       ),
@@ -289,22 +292,22 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
   }
 
   _onKeyboardTap(String value) async {
-    if (_price.length == 7) {
+    if (_price.value.length == 7) {
       return;
     }
 
     setState(() {
-      _price = _price + value;
+      _price.value = _price.value + value;
       _calc();
     });
   }
 
   void _calc() {
-    if (_price.length == 0) {
+    if (_price.value.length == 0) {
       return;
     }
 
-    int price = int.parse(_price);
+    int price = int.parse(_price.value);
 
     int max = (_stay.value == 10
             ? 0
@@ -450,12 +453,20 @@ class _MyHomePageState extends State<MyHomePage> with RestorationMixin {
   }
 
   @override
-  // TODO: implement restorationId
   String get restorationId => "HomePage";
 
   @override
   void restoreState(RestorationBucket oldBucket, bool initialRestore) {
+    registerForRestoration(_price, 'price');
     registerForRestoration(_stay, 'stay');
     registerForRestoration(_person, 'person');
+  }
+
+  @override
+  void dispose() {
+    _price.dispose();
+    _stay.dispose();
+    _person.dispose();
+    super.dispose();
   }
 }
